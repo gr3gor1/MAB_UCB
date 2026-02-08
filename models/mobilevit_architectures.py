@@ -207,3 +207,8 @@ class MobileViT(nn.Module):
         x = self.pool(x).view(-1, x.shape[1])
         x = self.fc(x)
         return x
+
+def mobilevit_xxs():
+    dims = [64, 80, 96]
+    channels = [16, 16, 24, 24, 48, 48, 64, 64, 80, 80, 320]
+    return MobileViT((256, 256), dims, channels, num_classes=10, expansion=2)
