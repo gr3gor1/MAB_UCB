@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ucb_algorithms import UCB_BwK, UCB1, UCB_V, UCB_Tuned
+from ucb_algorithms import UCB_BwK, UCB1, UCB_V, UCB_Tuned, BayesUCB
 
 class EarlyExitHead(nn.Module):
     def __init__(self, in_channels, num_classes):
