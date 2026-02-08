@@ -21,7 +21,7 @@ def validate(model, dataloader, criterion, device):
     val_acc = correct / total
     return val_loss, val_acc
 
-def train_mvit(train_loader, valid_loader, dest, num_epochs):
+def train_mvit(train_loader, valid_loader, dest, num_epochs, classes):
     model = mobilevit_xxs()
 
     criterion = nn.CrossEntropyLoss()
@@ -64,7 +64,7 @@ def train_mvit(train_loader, valid_loader, dest, num_epochs):
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 epochs_no_improve = 0
-                torch.save(model.state_dict(), dest + "/mobilevit.pth")  # Save best model
+                torch.save(model.state_dict(), dest + "/mobilevit_" + str(classes) + ".pth")  # Save best model
             else:
                 epochs_no_improve += 1
                 if epochs_no_improve >= patience:

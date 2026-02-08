@@ -46,9 +46,43 @@ class Train:
         return
 
     def load_data(self):
+        if self.ten:
+            self.train_loader, self.val_loader = data_loader10(data_dir=self.dest + '/data',
+                                                     batch_size=64)
+        else:
+            self.train_loader, self.val_loader = data_loader100(data_dir=self.dest + '/data',
+                                                     batch_size=64)
         return
 
     def train(self):
+
+        if self.resnet and self.base:
+            train_resnet(train_loader=self.train_loader, dest=self.dest, num_epochs=self.num_epochs,
+                         variant=self.variant)
+        elif self.resnet and self.static:
+            train_resnet_static(train_loader=self.train_loader, dest=self.dest, num_epochs=self.num_epochs,
+                         variant=self.variant)
+        elif self.resnet and self.dynamic:
+            train_resnet_dynamic(dataloader=self.train_loader, dest=self.dest, epochs=self.num_epochs,
+                                 variant=self.variant)
+        elif self.mvit and self.base and self.ten:
+            train_mvit(train_loader=self.train_loader, valid_loader=self.val_loader, dest=self.dest,
+                       num_epochs=self.num_epochs, classes=10)
+        elif self.mvit and self.static and self.ten:
+            train_mvit_static(train_loader=self.train_loader, valid_loader=self.val_loader, dest=self.dest,
+                              num_epochs=self.num_epochs, src=self.src, classes=10)
+        elif self.mvit and self.dynamic and self.ten:
+            train_mvit_dynamic(train_loader=self.train_loader, dest=self.dest, src=self.src, classes=10,
+                               num_epochs=self.num_epochs)
+        elif self.mvit and self.base and self.hundred:
+            train_mvit(train_loader=self.train_loader, valid_loader=self.val_loader, dest=self.dest,
+                       num_epochs=self.num_epochs, classes=100)
+        elif self.mvit and self.static and self.hundred:
+            train_mvit_static(train_loader=self.train_loader, valid_loader=self.val_loader, dest=self.dest,
+                              num_epochs=self.num_epochs, src=self.src, classes=100)
+        elif self.mvit and self.dynamic and self.hundred:
+            train_mvit_dynamic(train_loader=self.train_loader, dest=self.dest, src=self.src, classes=100,
+                               num_epochs=self.num_epochs)
         return
 
 def main():
