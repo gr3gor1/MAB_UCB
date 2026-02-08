@@ -3,10 +3,10 @@ import time
 
 from tqdm import tqdm
 
-from ee_resnet_architectures import *
-from resnet_architectures import *
+from models.ee_ucb_resnet_architectures import *
+from models.resnet_architectures import *
 
-def train_offline_ee(epochs, dataloader, variant, dest):
+def train_resnet_dynamic(dataloader ,dest, epochs, variant):
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -86,7 +86,7 @@ def train_offline_ee(epochs, dataloader, variant, dest):
 
   end = time.time()
 
-  torch.save(model.state_dict(), dest + "/ee_resnet_model_" + str(variant) + ".pth")
+  torch.save(model.state_dict(), dest + "/resnet_dynamic_" + str(variant) + ".pth")
   torch.save(gating_model.state_dict(), dest + "/gating_" + str(variant) + "_weights.pth")
   print(f"Elapsed time: {end - start:.4f} seconds")
 
