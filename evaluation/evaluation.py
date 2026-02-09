@@ -1,13 +1,162 @@
 import argparse
+import os
+
+from data.dataloader10 import data_loader10
+from data.dataloader100 import data_loader100
+
+from train.mobilevit_base import *
+from train.mobilevit_ee_static import *
+from train.mobilevit_ee_dynamic import *
+
+from train.resnet_base import *
+from train.resnet_ee_static  import *
+from train.resnet_ee_dynamic import *
+
+def evaluation():
+
+    return
 
 class Evaluate:
 
-    def __init__(self, model, gating_model, data, dest):
+    def __init__(self, model, gating_model, dest, resnet, mvit, variant, src, ucb, hundred, ten):
+
+        if not os.path.exists(dest):
+            os.makedirs(dest)
+        if not os.path.exists(model) or not os.path.exists(gating_model):
+            raise ValueError("Model or Gating model does not exist")
+        if not os.path.exists(src):
+            raise ValueError("Backbone for mvit is not available")
+
+        self.model = model
+        self.gating_model = gating_model
+
+        self.dest = dest
+
+        self.resnet = resnet
+        self.mvit = mvit
+
+        self.variant = variant
+
+        self.src = src
+        self.ucb = ucb
+
+        self.hundred = hundred
+        self.ten = ten
+
+        self.test_loader = None
+        self.arms = [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+
+        self.num_classes = None
+
+        if self.hundred:
+            self.num_classes = 100
+        elif self.ten:
+            self.num_classes = 10
+
         return
 
-    def testing(self):
+    def testing_data(self):
+        if self.ten:
+            self.test_loader = data_loader10(data_dir=self.dest + '/data',
+                                                     batch_size=1, test=True)
+        else:
+            self.test_loader = data_loader100(data_dir=self.dest + '/data',
+                                                     batch_size=1, test=True)
         return
 
     def evaluation(self):
+        if self.resnet:
+            if self.variant == 50:
+                if self.ucb != "bwk":
+                    model = ResNetEE50U(ResidualBlock50, layers=[3, 4, 6, 3], num_classes=10, mode=self.ucb,
+                                        arms=self.arms)
+                else:
+                    model = ResNetEE50U(ResidualBlock50, layers=[3, 4, 6, 3], num_classes=10, mode=self.ucb,
+                                        arms=self.arms, bwk=True)
+            elif self.variant == 18:
+                if self.ucb != "bwk":
+                    model = ResNetEE18U(ResidualBlock, layers=[2, 2, 2, 2], num_classes=10, mode=self.ucb,
+                                        arms=self.arms)
+                else:
+                    model = ResNetEE18U(ResidualBlock, layers=[2, 2, 2, 2], num_classes=10, mode=self.ucb,
+                                        arms=self.arms, bwk=True)
+            else:
+                if self.ucb != "bwk":
+                    model = ResNetEE18U(ResidualBlock, layers=[3, 4, 6, 3], num_classes=10, mode=self.ucb,
+                                        arms=self.arms)
+                else:
+                    model = ResNetEE18U(ResidualBlock, layers=[3, 4, 6, 3], num_classes=10, mode=self.ucb,
+                                        arms=self.arms, bwk=True)
+
+            model.load_state_dict(torch.load(self.model))
+
+        if self.mvit:
+
+            pretrained_model = mobilevit_xxs()
+            pretrained_model.load_state_dict(torch.load(self.src))
+
+            if self.ucb != "bwk":
+                model = MobileViTWithUCB(base_model=pretrained_model, exit_points=['mvit_0', 'mvit_1'],
+                                           num_classes=self.num_classes, arms=self.arms, bwk=False, mode=self.ucb)
+            else:
+                model = MobileViTWithUCB(base_model=pretrained_model, exit_points=['mvit_0', 'mvit_1'],
+                                           num_classes=self.num_classes, arms=self.arms, bwk=True, mode=self.ucb)
+
+            model.load_state_dict(torch.load(self.model))
+
+        gating = Gmodel(hidden_dim=self.num_classes)
+        gating.load_state_dict(torch.load(self.gating_model))
+
         return
 
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--dest", type=str, required=True, default=None, help="Where to store results?")
+    parser.add_argument("--model", type=str, required=True, default=None,
+                        help="Where to look for the pretrained model?")
+    parser.add_argument("--gating_model", type=str, required=True, default=None,
+                        help="Where to look for the pretrained gating model?")
+    parser.add_argument("--ucb", choices=["ucb1", "tuned", "bwk", "v", "bayes"],
+                        help="choose ucb algorithm")
+    parser.add_argument("--resnet", type=bool, required=False, default=False,
+                        help="train a resnet variant")
+    parser.add_argument("--mvit", type=bool, required=False, default=False, help="train a mvit variant")
+
+    # if resnet is True
+    parser.add_argument("--variant", type=int, required=False, default=None,
+                        help="What is the variant of ResNet (18,34,50)?")
+
+    # if mvit is True
+    parser.add_argument("--src", type=str, required=False, default=None,
+                        help="What is the variant of ResNet (18,34,50)?")
+
+    # choose dataset
+    parser.add_argument("--ten", type=bool, required=False, default=False, help="cifar10 will be used")
+    parser.add_argument("--hundred", type=bool, required=False, default=False,
+                        help="cifar100 will be used")
+
+    args = parser.parse_args()
+
+    dest = args.dest
+    model = args.model
+    gating_model = args.gating_model
+    ucb = args.ucb
+
+    resnet = args.resnet
+    mvit = args.mvit
+
+    variant = args.variant
+    src = args.src
+
+    ten = args.ten
+    hundred = args.hundred
+
+    final = Evaluate(dest=dest, model=model, gating_model=gating_model, ucb=ucb, hundred=hundred, ten=ten,
+                     resnet=resnet, mvit=mvit, variant=variant, src=src)
+    final.testing_data()
+    final.evaluation()
+
+if __name__ == "__main__":
+    main()
