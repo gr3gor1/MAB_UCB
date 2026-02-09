@@ -15,15 +15,15 @@ variants that account for factors such as Bayesian uncertainty, mean cost of rew
 
 <b align="justify">Not only is it visible that there are variants besides UCB1 dominating Pareto Frontiers:</b>
 
-<b> ResNet variants Pareto frontiers across different sets of arms for accuracy-inference time and accuracy-energy
-consumption on CIFAR10.1v6</b>
+<p> ResNet variants Pareto frontiers across different sets of arms for accuracy-inference time and accuracy-energy
+consumption on CIFAR10.1v6</p>
 
 ![renergy_10.1_res.png](artifacts/renergy_10.1_res.png)
 
 ![rinf_10.1_res.png](artifacts/rinf_10.1_res.png)
 
-<b> MobileViT Pareto frontiers across different sets of arms for accuracy-inference time and accuracy-energy
-consumption on CIFAR10.1v6</b>
+<p> MobileViT Pareto frontiers across different sets of arms for accuracy-inference time and accuracy-energy
+consumption on CIFAR10.1v6</p>
 
 ![ming_10.1.png](artifacts/ming_10.1.png)
 
@@ -31,7 +31,7 @@ consumption on CIFAR10.1v6</b>
 
 <b align="justify">But cumulative regret convergence is also different in respect to the chosen UCB algorithm:</b>
 
-<b> MobileViT and ResNet cumulative regret across time steps for CIFAR-100 and CIFAR-10 testing sets respectively.</b>
+<p> MobileViT and ResNet cumulative regret across time steps for CIFAR-100 and CIFAR-10 testing sets respectively.</p>
 
 ![r50reg.png](artifacts/r50reg.png)
 
