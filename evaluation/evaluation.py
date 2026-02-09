@@ -1,5 +1,6 @@
 import argparse
 import os
+import pandas as pd
 
 from data.dataloader10 import data_loader10
 from data.dataloader100 import data_loader100
@@ -12,9 +13,60 @@ from train.resnet_base import *
 from train.resnet_ee_static  import *
 from train.resnet_ee_dynamic import *
 
-def evaluation():
+from codecarbon import EmissionsTracker
 
-    return
+def evaluation(model, test_loader, model_name, early=True):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    model.eval()
+
+    correct = 0
+    total = 0
+    NUM_EXITS = 4
+    exit_counts = [0] * NUM_EXITS if early else None
+
+    start_time = time.time()
+    tracker = EmissionsTracker(measure_power_secs=1)
+    tracker.start()
+
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            if early:
+                preds, exit_id = model(images)
+                exit_counts[exit_id] += 1
+            else:
+                preds = model(images)
+
+            predicted = preds.argmax(dim=1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    tracker.stop()
+    end_time = time.time()
+
+    accuracy = 100 * correct / total
+    inference_time = end_time - start_time
+
+    data = tracker._prepare_emissions_data()
+    energy = data.energy_consumed
+
+    result = {
+        "model_name": model_name,
+        "accuracy": accuracy,
+        "inference_time_sec": inference_time,
+        "energy_kWh": energy,
+    }
+
+    for i in range(4):
+        if early:
+            result[f"exit_{i}_count"] = exit_counts[i]
+        else:
+            result[f"exit_{i}_count"] = float('nan')
+
+    return result
 
 class Evaluate:
 
@@ -65,6 +117,9 @@ class Evaluate:
         return
 
     def evaluation(self):
+
+        model = None
+
         if self.resnet:
             if self.variant == 50:
                 if self.ucb != "bwk":
@@ -106,6 +161,14 @@ class Evaluate:
 
         gating = Gmodel(hidden_dim=self.num_classes)
         gating.load_state_dict(torch.load(self.gating_model))
+
+        model.gating = gating
+
+        data = evaluation(model=model, test_loader=self.test_loader, model_name=self.model, early=True)
+
+        df = pd.DataFrame(data)
+
+        df.to_csv(self.dest + '/data.csv', index=False)
 
         return
 
