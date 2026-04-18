@@ -36,3 +36,5 @@ consumption on CIFAR10.1v6</p>
 ![r50reg.png](artifacts/r50reg.png)
 
 ![mreg_1.png](artifacts/mreg_1.png)
+
+Note: The experiments revolving around inference were run on a single L4 GPU.
