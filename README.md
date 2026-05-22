@@ -1,3 +1,17 @@
+If this the present repository is useful to you, the following work can be cited:
+
+<code>
+@misc{papanikolaou2026comparativeanalysisperformanceupper,
+      title={A Comparative Analysis on the Performance of Upper Confidence Bound Algorithms in Adaptive Deep Neural Networks}, 
+      author={Grigorios Papanikolaou and Ioannis Kontopoulos and Konstantinos Tserpes},
+      year={2026},
+      eprint={2604.24810},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2604.24810}, 
+}
+</code>
+
 # MAB_UCB
 
 <b align="justify"> Adaptive Deep Neural Networks (ADNNs) incorporating Dynamic Depth Sparsity provide the possibility
