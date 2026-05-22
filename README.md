@@ -1,4 +1,4 @@
-If this the present repository is useful to you, the following work can be cited:
+If this repository is useful to you, the following work can be cited:
 
 <code>
 @misc{papanikolaou2026comparativeanalysisperformanceupper,
