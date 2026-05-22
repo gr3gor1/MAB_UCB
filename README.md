@@ -1,6 +1,6 @@
 If this repository is useful to you, the following work can be cited:
 
-<code>
+```
 @misc{papanikolaou2026comparativeanalysisperformanceupper,
       title={A Comparative Analysis on the Performance of Upper Confidence Bound Algorithms in Adaptive Deep Neural Networks}, 
       author={Grigorios Papanikolaou and Ioannis Kontopoulos and Konstantinos Tserpes},
@@ -10,7 +10,7 @@ If this repository is useful to you, the following work can be cited:
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2604.24810}, 
 }
-</code>
+```
 
 # MAB_UCB
 
